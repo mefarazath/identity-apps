@@ -18,16 +18,59 @@
 
 <!-- localize.jsp MUST already be included in the calling script -->
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationEndpointUtil" %>
+<%@ page import="org.wso2.identity.cloud.theme.mgt.Theme" %>
+<%@ page import="org.wso2.identity.cloud.theme.mgt.ThemeManagementHelper" %>
+<%@ page import="org.wso2.identity.cloud.theme.mgt.exception.ThemeManagementException" %>
+
 
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="icon" href="libs/themes/default/assets/images/favicon.ico" type="image/x-icon"/>
-<link href="libs/themes/default/theme.min.css" rel="stylesheet">
+<%
+//    String tenant = AuthenticationEndpointUtil.getTenantDomain(request);
+//    Preference preference = TenantResourceManager.getPreferences(tenant);
+//    // Header title.
+//    String headerTitle = preference.getHeaderTitle();
+//    if (headerTitle == null) {
+//        headerTitle = AuthenticationEndpointUtil.i18n(resourceBundle, "wso2.identity.server");
+//    } else {
+//        headerTitle = AuthenticationEndpointUtil.i18n(resourceBundle, headerTitle);
+//    }
+//
+//    String customStyle = preference.getStylePath();
+    
+    String tenant = ThemeManagementHelper.getTenantDomain(request);
+    Theme theme;
+    try {
+        theme = ThemeManagementHelper.getThemeManagementService().getTheme(tenant);
+        if (theme != null) {
+            System.out.println("Theme retrieved. Theme path: " + theme.getThemePath());
+        }
+    } catch (ThemeManagementException e) {
+        System.out.println(e);
+        theme = new Theme();
+    }
+    
+    String headerTitle = theme.getHeaderText();
+    if (headerTitle == null) {
+        headerTitle = AuthenticationEndpointUtil.i18n(resourceBundle, "wso2.identity.server");
+    } else {
+        headerTitle = AuthenticationEndpointUtil.i18n(resourceBundle, headerTitle);
+    }
+  
+    String customStyle = theme.getThemePath();
+    System.out.println("Theme Path: " + customStyle);
+%>
 
-<title><%=AuthenticationEndpointUtil.i18n(resourceBundle, "wso2.identity.server")%></title>
+<link rel="icon" href="libs/theme/assets/images/favicon.ico" type="image/x-icon"/>
+<title><%=headerTitle%></title>
 
+<% if (customStyle != null) { %>
+<link rel="stylesheet" href="<%=customStyle%>">
+<% } else { %>
+<link href="libs/theme/wso2-default.min.css" rel="stylesheet">
+<% } %>
 <style>
     html, body {
         height: 100%;

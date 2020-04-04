@@ -18,12 +18,32 @@
 
 <!-- localize.jsp MUST already be included in the calling script -->
 <%@ page import="org.wso2.carbon.identity.application.authentication.endpoint.util.AuthenticationEndpointUtil" %>
+<%@ page import="org.wso2.identity.cloud.theme.mgt.Theme" %>
+<%@ page import="org.wso2.identity.cloud.theme.mgt.ThemeManagementHelper" %>
+<%@ page import="org.wso2.identity.cloud.theme.mgt.exception.ThemeManagementException" %>
 
+<%
+    String tenant = ThemeManagementHelper.getTenantDomain(request);
+    Theme theme;
+    try {
+        theme = ThemeManagementHelper.getThemeManagementService().getTheme(tenant);
+    } catch (ThemeManagementException e) {
+        theme = new Theme();
+    }
+    
+    String footerText = theme.getFooterText();
+%>
 <!-- footer -->
 <footer class="footer" style="text-align: center">
     <div class="container-fluid">
+        <% if (footerText == null) { %>
         <p><%=AuthenticationEndpointUtil.i18n(resourceBundle, "wso2.identity.server")%> &copy;
             <script>document.write(new Date().getFullYear());</script>
         </p>
+        <% } else { %>
+        <p><%=AuthenticationEndpointUtil.i18n(resourceBundle, footerText)%> &copy;
+            <script>document.write(new Date().getFullYear());</script>
+        </p>
+        <% } %>
     </div>
 </footer>
